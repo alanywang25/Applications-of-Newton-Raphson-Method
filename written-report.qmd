@@ -1,0 +1,228 @@
+---
+title: "STA 323 Final Project"
+author: "Matthew Paul, Abdel Shehata, Alan Wang"
+format: pdf
+bibliography: references.bib
+---
+
+## Project Motivation
+
+One of the algorithms that we learned in STA 323 is the Newton-Raphson method 
+(or Newton’s method) for approximating roots.
+
+We wanted to combine our understanding of Newton’s method with what we learned 
+about creating Shiny apps to create an interactive Shiny dashboard that explores 
+the various applications of Newton's method.
+
+## Dashboard Overview
+
+This dashboard has three separate applications that use Newton's Method: a root
+finder, an application that simulates a damped driven harmonic oscillator, and
+an Internal Rate of Return (IRR) calculator.
+
+The following are descriptions of each of the dashboard pages.
+
+## Dashboard Page Descriptions
+
+### Page 1: Newton's Method Root Finder
+
+This Shiny app is an interactive dashboard that allows for the user to enter the 
+function that they wish to estimate a root of using Newton’s method. We also 
+allow for the user to adjust the tolerance value, the number of iterations, and
+the limits of plot that shows the function with the estimated root.
+
+To estimate the root, we use the following standard procedural update:
+
+$$
+x_{n + 1} = x_n - \frac{f(x_n)}{f'(x_n)}
+$$
+
+The app also has some optional inputs that the user can customize. For example,
+on the plot that displays the function and the estimated root. As optional 
+inputs, the user can change the number of significant figures of the root 
+outputted (default set to 3), as well as the color and size of the point that 
+plots the estimated root (defaults set to black and 2 respectively).
+
+Once all of the inputs have been set by the user to their liking, the user can 
+click “Calculate” and the estimated root will be displayed along with a plot 
+showing how the application arrived at the approximation, as well as a second
+plot that plots the function and the estimated root.
+
+We wanted to expand upon this basic app to explore the application of Newton's 
+Method in other fields.
+
+### Page 2: Damped Driven Harmonic Oscillator Shiny App
+
+This Shiny app simulates a damped driven harmonic oscillator using Newton's 
+Method for numerical integration. The app includes a user interface for input 
+parameters, a server for processing the simulation, and a plot output of the 
+oscillator's displacement over time.
+
+#### Mathematical Formulation
+
+The motion of a damped driven harmonic oscillator can be described by the 
+following second-order ordinary differential equation (ODE) [@harm-osc].
+
+$$
+m \frac{d ^ 2x}{dt ^ 2} + c \frac{dx}{dt} + kx = F_0 \sin(\omega t)
+$$
+
+where:
+
+- $m$ is the mass of the oscillator
+- $x$ is the displacement of the oscillator
+- $c$ is the damping coefficient
+- $\frac{dx}{dt}$ is the velocity of the oscillator
+- $k$ is the spring constant
+- $F_0$ is the force amplitude
+- $\omega$ is the angular frequency
+- $t$ is the time
+
+To apply Newton's Method to the damped driven harmonic oscillator's ODE, 
+we first discretize the ODE using a time step ($dt$) and then apply the method 
+to update the displacement ($x$) and velocity ($v$) at each time step: 
+
+We can first replace the second derivative of displacement 
+($\frac{d ^ 2x}{dt ^ 2}$) and the first derivative of displacement 
+($\frac{dx}{dt}$) with finite difference approximations. 
+
+We will use the central difference method for both derivatives:
+
+This is the second derivative approximation [@phys].
+
+$$
+\frac{d ^ 2x}{dt ^ 2} \approx \frac{x_{n + 1} - 2x_n + x_{n - 1}}{dt ^ 2}
+$$
+
+This is the first derivative approximation [@phys].
+
+$$
+\frac{dx}{dt} \approx \frac{x_{n + 1} - x_{n - 1}}{2dt}
+$$
+
+Substitute the approximations into the continuous ODE:
+
+$$
+m \frac{x_{n + 1} - 2x_n + x_{n - 1}}{dt^2} + c \frac{x_{n + 1} - x_{n-1}}{2dt} 
++ kx_n = F_0 \sin(\omega t_n)
+$$
+
+Multiply the equation by $2dt ^ 2$ to get rid of the denominators:
+
+$$
+2m(dt)(x_{n + 1} - 2x_n + x_{n - 1}) + c(x_{n + 1} - x_{n - 1}) + 2k(dt ^ 2) x_n
+= 2F_0(dt ^ 2) \sin(\omega t_n)
+$$
+
+$$
+x_{n + 1} - x_n - dt * v_n - 0.5 * dt ^ 2 * (F_0 * \sin(\omega t_n) - c * v_n 
+- k * x_{n + 1}) / m = 0
+$$
+
+Rearrange the equation to get $x_{n + 1}$ on the left-hand side:
+
+$$
+x_{n + 1} - x_n - dt * \frac{x_{n + 1} - x_{n - 1}}{2} - 0.5 * dt ^ 2 * 
+(F_0 * \sin(\omega t_n) - c * \frac{x_{n+1} - x_{n-1}}{2dt} - k * x_n) / m = 0
+$$
+
+Since the $\frac{x_{n+1} - x_{n-1}}{2}$ represents the velocity ($v_n$) of the 
+oscillator. We can rewrite the equation using the velocity variable:
+
+$$
+x_{n+1} - x_n - dt * v_n - 0.5 * dt^2 * (F_0 * \sin(\omega t_n) - c * v_n - k 
+* x_{n + 1}) / m = 0
+$$
+
+Rearranging, we get the following:
+
+$$
+f(x_{n + 1}) = x_{n + 1} - x_n - dt * v_n - 0.5 * dt^2 * (F_0 * \sin(\omega t_n) 
+- c * v_n - k * x_{n+1}) / m
+$$
+
+Taking the derivative we get:
+
+$$
+f'(x_{n + 1}) = \frac{d}{dx_{n + 1}}f(x_{n + 1}) = 1 - 0.5 * dt ^ 2 * (- k) / m
+$$
+
+Once the displacement is updated, the velocity is updated as well using the 
+finite difference approximation. We can use this to calculate the velocity:
+
+$$
+v_{n + 1} = v_n + 0.5 * dt * \left(\frac{F_0 * \sin(\omega t_n) - 
+c * v_n - k * x_n}{m} + \frac{F_0 * \sin(\omega t_{n+1}) - c * v_n - k 
+* x_{n + 1}}{m}\right)
+$$
+
+
+### Page 3: Internal Rate of Return (IRR) Calculator 
+
+Our Shiny app calculates the Internal Rate of Return (IRR) for a given set of 
+cash flows using Newton's method for root-finding. The app includes a user 
+interface for input parameters, a server for processing the IRR calculation, 
+and a plot output displaying the Net Present Value (NPV) as a function of 
+the discount rate.
+
+#### Mathematical Formulation
+
+The IRR is the discount rate at which the Net Present Value (NPV) of a series 
+of cash flows becomes zero. Mathematically, NPV can be described by the 
+following equation shown below [@irr].
+
+$$
+NPV = \sum_{i = 0} ^ {n - 1} \frac{CF_i}{(1 + IRR) ^ i} = 0
+$$
+
+where:
+
+- $NPV$ is the Net Present Value
+- $IRR$ is the Internal Rate of Return
+- $CF_i$ is the cash flow at time $i$
+- $n$ is the number of cash flows
+
+To find the IRR, we apply Newton's method to the NPV equation. Newton's method 
+is an iterative root-finding algorithm that uses the function value and its 
+derivative at each step to estimate the root.
+
+In our case, the function $f(IRR)$ is:
+
+$$
+f(IRR) = \sum_{i = 0} ^ {n - 1} \frac{CF_i}{(1 + IRR) ^ i}
+$$
+
+Taking the derivative with respect to $IRR$, we get:
+
+$$
+f'(IRR) = -\sum_{i = 0} ^ {n - 1} \frac{i \cdot CF_i}{(1 + IRR) ^ {i + 1}}
+$$
+
+The Shiny app provides an interactive interface for users to input initial 
+IRR guesses and cash flows. The app calculates the IRR using Newton's method 
+and displays the result as a percentage. Additionally, the app plots the NPV 
+as a function of the discount rate, highlighting the IRR with a red vertical 
+line. This visualization helps users understand the relationship between NPV 
+and discount rate, and easily identify the IRR as the point where the NPV is 
+closest to zero.
+
+## Future Improvements
+
+If we were to continue working on this Shiny app dashboard, we could add 
+additional features to improve it. For example, we could include animations 
+showing the procedural updates graphically. In addition, we could expand our app 
+to include multivariate Newton’s method for the root finder. One future
+improvement to the IRR calculator could be to add a fallback method, such as the 
+bisection method, to make sure it always converges to a percentage.
+
+## Group Contributions
+
+Abdel worked on developing the base of the three applications in R and the 
+mathematical derivations (included in written report), and the dashboard. Alan 
+worked on the written report, the presentation, the dashboard, and adding 
+additional features to the root finder. Matthew worked on the presentation, 
+overall repository organization, and the README.
+
+## References
+
+
