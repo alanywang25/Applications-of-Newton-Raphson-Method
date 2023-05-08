@@ -1,5 +1,7 @@
 # STA 323 Final Project
 
+Note: The contents of this repository were imported from a separate repository that was used by all project team members. This project was the final project for STA 323 (Statistical Computing), which I took during the Spring 2023 semester at Duke.
+
 #### Team 1: Abdel Shehata, Matthew Paul, Alan Wang
 
 ## Introduction and File Descriptions 
